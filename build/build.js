@@ -5,7 +5,8 @@ import webpack  from 'webpack';
 import config   from './config';
 import ignore   from 'gulp-ignore';
 import rimraf   from 'gulp-rimraf';
-import webpackConfig from './webpack.build.config';
+
+
 
 
 gulp.task('clean-dist', () => {
@@ -16,6 +17,8 @@ gulp.task('clean-dist', () => {
 });
 
 gulp.task('build', ['clean-dist'], () => {
+    const webpackConfig = require('./webpack.build.config').default ;
+
     webpackConfig.entry.app = config.WEBPACK_ENTRY;
 
     webpack(webpackConfig, (err, stats) => {

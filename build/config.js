@@ -25,7 +25,9 @@ export default {
     /**
      * Webpack 配置
      */
-    WEBPACK_FRAMEWORK: [ 'babel-polyfill', 'framework_js', 'pasp_js', 'pasp_css' ],
+    WEBPACK_FRAMEWORK: [],
+    // WEBPACK_FRAMEWORK: [ 'babel-polyfill', 'framework_js', 'pasp_js'],
+    // WEBPACK_FRAMEWORK: [ 'babel-polyfill', 'framework_js', 'pasp_js', 'pasp_css' ],
     WEBPACK_ENTRY: [ 'babel-polyfill', path.join(BASE_PATH, 'src/app.js') ],
     WEBPACK_ENTRY_ORDER: { 'vendor': 0, framework: 1, app: 2 },
 

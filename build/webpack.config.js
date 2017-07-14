@@ -3,7 +3,7 @@ import config from './config';
 
 export default {
     entry: {
-        framework: config.WEBPACK_FRAMEWORK
+        // framework: config.WEBPACK_FRAMEWORK
     },
     module: {
         rules: [{
@@ -38,7 +38,7 @@ export default {
             framework_js: config.PATH_NODE_MODULES + '/ctg-pasp-ui/scripts/framework.js',
             pasp_js: config.PATH_NODE_MODULES + '/ctg-pasp-ui/scripts/pasp.js',
             pasp_css: config.PATH_NODE_MODULES + '/ctg-pasp-ui/styles/pasp.min.css',
-            variables_css: config.PATH_SRC + '/assets/styles/utils/variables.scss',
+            // variables_css: config.PATH_SRC + '/assets/styles/utils/variables.scss',
         }
     },
     devtool: "eval",

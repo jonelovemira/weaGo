@@ -3,7 +3,6 @@ import config from './config';
 import webpack from 'webpack';
 import server from 'browser-sync';
 import url from 'url';
-import webpackDevConfig from './webpack.dev.config';
 import proxyDevMiddleware   from 'proxy-middleware';
 import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
@@ -11,12 +10,14 @@ import webpackHotMiddleware from 'webpack-hot-middleware';
 
 gulp.task('serve', () => {
     let compiler, proxyOptions;
+const webpackDevConfig = require('./webpack.dev.config').default;
 
     // 在入口中启动热更新模块
     webpackDevConfig.entry.app = [
         // 启用webpack HRM
         'webpack-hot-middleware/client?reload=true'
     ].concat(config.WEBPACK_ENTRY);
+    console.log(webpackDevConfig);
 
     // 设置开发服务器的代理，请求中转至真实后台
     proxyOptions = url.parse(config.API_URL);
@@ -24,6 +25,7 @@ gulp.task('serve', () => {
 
     // webpack编译代码
     compiler = webpack(webpackDevConfig);
+
 
     // browser-sync 同步配置
     server({
