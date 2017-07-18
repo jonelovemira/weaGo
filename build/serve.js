@@ -10,14 +10,15 @@ import webpackHotMiddleware from 'webpack-hot-middleware';
 
 gulp.task('serve', () => {
     let compiler, proxyOptions;
-const webpackDevConfig = require('./webpack.dev.config').default;
+    
+    // 放外部会导致bug，在build中对config的更改也会生效
+    const webpackDevConfig = require('./webpack.dev.config').default;
 
     // 在入口中启动热更新模块
     webpackDevConfig.entry.app = [
         // 启用webpack HRM
         'webpack-hot-middleware/client?reload=true'
     ].concat(config.WEBPACK_ENTRY);
-    console.log(webpackDevConfig);
 
     // 设置开发服务器的代理，请求中转至真实后台
     proxyOptions = url.parse(config.API_URL);
@@ -25,7 +26,6 @@ const webpackDevConfig = require('./webpack.dev.config').default;
 
     // webpack编译代码
     compiler = webpack(webpackDevConfig);
-
 
     // browser-sync 同步配置
     server({

@@ -6,9 +6,6 @@ import config   from './config';
 import ignore   from 'gulp-ignore';
 import rimraf   from 'gulp-rimraf';
 
-
-
-
 gulp.task('clean-dist', () => {
     return gulp.src(config.PATH_DIST + '/**/*.*') 
            .pipe(ignore('.svn/**'))
@@ -17,6 +14,7 @@ gulp.task('clean-dist', () => {
 });
 
 gulp.task('build', ['clean-dist'], () => {
+    // 放外部会导致bug，在build中对config的更改也会生效
     const webpackConfig = require('./webpack.build.config').default ;
 
     webpackConfig.entry.app = config.WEBPACK_ENTRY;
