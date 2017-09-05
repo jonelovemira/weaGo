@@ -8,9 +8,15 @@ modules.keys().forEach(key => {
 });
 
 /**
+ * 页面加载
+ */
+let account = require.context('./scripts/pages/', true, /\.index.js$/);
+account.keys().forEach(account);
+
+/**
  * 应用初始化
  */
-const app = angular.module('app', [...dependencies]);
+const app = angular.module('app', ['pasp.ui', ...dependencies]);
 
 
 

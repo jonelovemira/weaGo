@@ -3,7 +3,8 @@ import config from './config';
 
 export default {
     entry: {
-        framework: config.WEBPACK_FRAMEWORK
+        framework: config.WEBPACK_FRAMEWORK,
+        paspui: config.WEBPACK_PASPUI,
     },
     module: {
         rules: [{
@@ -35,6 +36,9 @@ export default {
     resolve: {
         alias: {
             // webpack配置时的一些别名
+            framework_js: config.PATH_NODE_MODULES + '/ctg-pasp-ui/scripts/framework.js',
+            pasp_js: config.PATH_NODE_MODULES + '/ctg-pasp-ui/scripts/pasp.js',
+            pasp_css: config.PATH_NODE_MODULES + '/ctg-pasp-ui/styles/pasp.min.css',
         }
     },
     devtool: "eval",
@@ -42,11 +46,11 @@ export default {
         /**
          * 合并公用代码,每个模块至少三处使用，并且不在开发代码文件夹内
          */
-        new webpack.optimize.CommonsChunkPlugin({
-            name: 'vendor',
-            minChunks: function(module, count) {
-                return module.resource && module.resource.indexOf(config.PATH_SRC) === -1;
-            }
-        })
+        // new webpack.optimize.CommonsChunkPlugin({
+        //     name: 'vendor',
+        //     minChunks: function(module, count) {
+        //         return module.resource && module.resource.indexOf(config.PATH_SRC) === -1;
+        //     }
+        // })
     ]
 }

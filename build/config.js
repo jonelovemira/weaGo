@@ -26,9 +26,10 @@ export default {
      * Webpack 配置
      */
     // 放外部引入库
-    WEBPACK_FRAMEWORK: ['angular'],
-    WEBPACK_ENTRY: [ 'babel-polyfill', path.join(BASE_PATH, 'src/app.js') ],
-    WEBPACK_ENTRY_ORDER: { 'vendor': 0, framework: 1, app: 2 },
+    WEBPACK_FRAMEWORK: ['babel-polyfill', 'framework_js'],
+    WEBPACK_PASPUI: [ 'pasp_js', 'pasp_css'],
+    WEBPACK_ENTRY: [ path.join(BASE_PATH, 'src/app.js') ],
+    WEBPACK_ENTRY_ORDER: { 'vendor': 0, framework: 1, paspui: 2, app: 3 },
 
     /**
      * 浏览器兼容列表

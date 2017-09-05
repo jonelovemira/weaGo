@@ -69,7 +69,7 @@ webpackDefaultConfig.plugins = webpackDefaultConfig.plugins.concat([
         filename: config.PATH_SRC + '/index.html',
         inject: 'body',
         hash: true,
-        chunks: ['vendor', 'framework', 'app'],
+        chunks: ['framework', 'paspui', 'app'],
         chunksSortMode:  (a, b) => {
             if (config.WEBPACK_ENTRY_ORDER[a.names[0]] > config.WEBPACK_ENTRY_ORDER[b.names[0]]) {
                 return 1;
