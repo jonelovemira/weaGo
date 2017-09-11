@@ -1,6 +1,6 @@
 class Controller{
     constructor() {
-
+        "ngInject";
     };
 }
 
