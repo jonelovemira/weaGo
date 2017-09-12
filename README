@@ -3,9 +3,9 @@
 - 需要具备的知识
 - 背景介绍
 - 安装使用
-- 环境配置
+- 开发配置
 - 开发
-- 生成生产环境代码
+- 生产配置
 
 ### 需要具备的知识
 
@@ -97,13 +97,15 @@ gulp build
 
 拷贝target文件夹下的文件至生产http服务器根文件夹下开放访问。
 
-### 环境配置    
+### 开发时配置
 
-**babel配置**
+这部分描述主要是辅助读懂build文件夹下的各个配置文件，如果想直接进入开发，可以直接跳过此小节，直接去开发部分。
 
-无论是编写gulp任务时还是前端代码的开发，我们都准备全面使用ES6语法，但是支持ES6语法的语法引擎并不多，只有较新版本的chrome和firefox内核。目前市面上的浏览器(包括后端的node)大多数只支持到ES5，所以需要配置使用babel将ES6语法转换成ES5。
+使用gulp serve之后发生了什么事情？如何实现我们所有的想法？
 
-1. 先保存preset，在项目根目录下保存以下内容为文件.babelrc，可以在这个文件中指定转码规则和插件。[具体看这里，又是阮老师的。][es6->es5]
+**1. 从抛弃ES5, 拥抱ES6开始。**
+
+前端开发代码要使用ES6规范，于是为了保证JS风格一致，我们在写gulp任务逻辑的时候也使用babel来进行转码。在项目根目录下保存以下内容为文件.babelrc，内容如下：
 
 ```
 {
@@ -111,7 +113,49 @@ gulp build
 }
 ```
 
-2. 使用垫片babel-polyfill，作为依赖引入。
+可以在这个文件中指定转码规则和插件。[具体看这里，又是阮老师的。][es6->es5]
+
+**2. serve任务**
+
+接下来就是写serve任务的逻辑，根据背景描述，我们需要一个工具满足以下需求：
+
+* 本地服务器，提供自测环境
+* webpack 太优秀，我们想使用各种webpack模块化打包的各种优良特性。
+* 透明中转代理
+* 高效开发，文件更改自动触发浏览器更新，代码修改可以热更新。
+
+看似复杂，其实业界已经有了成熟的开源工具，而且真的只需要配置一次。即browsersync。
+
+**3. browsersync配置**
+
+具体可以看./build/serve.js，代码中已经做了描述。具体的配置项可以看[官网地址][browser-sync-options]。有一个配置在这里解释一下, 里面的server选项：
+
+```javascript
+server: {
+    baseDir: config.PATH_SRC,
+    routes: {
+        // 本地打包测试
+        '/local-build': 'target'
+    }
+}
+```
+
+这个配置主要是用来辅助从本地访问target文件夹。如果只指定baseDir，那么只能访问baseDir下的文件，不能访问baseDir兄弟目录下的文件。所以配置一个route选项，访问target目录下的index.html时可以使用http://localhost:8180/local-build/index.html来访问。
+
+**4.webpack开发配置**
+
+开启browsersync之后，会触发webpack使用配置对代码进行编译。围观整个编译流程，其实就是依赖分析的流程。通过入口文件E，获取E依赖的A,B,C，然后再分析A,B,C的依赖。所有的依赖均是以文件为单位的模块，加载这些模块的时候，我们可以使用不同的loader来进行处理，例如js文件，我们使用babel进行转码，scss文件，我们使用sass编译器进行转换成为css。当然配置不仅仅是如此，具体更加详细的可以查看以下两个文件。
+
+```cmd
+./build/webpack.dev.config.js
+./build/webpack.config.js
+```
+
+将公共部分配置提取出来形成一个基础配置。基于这个基础配置在不同使用场景再做详细的更改。更多资料可以看[这里][webpack-usage-1], 还有[dev-tool][dev-tool]。
+
+* 垫片babel-polyfill
+
+有关babel还需要做一些额外的配置，即垫片babel-polyfill，需要作为依赖引入，垫片的作用，请看[这里][es6->es5], 主要是为了能够使用更多的ES6规范的API。方法如下：
 
 ```javascript
 // ./build/config.js 引入
@@ -140,126 +184,9 @@ new HtmlWebpackPlugin({
 })
 ```
 
-3. 使用babel-loader加载js文件。
+* 全局声明替换变量
 
-```javascript
-// ./build/webpack.config.js
-{
-    test: /\.js$/,
-    exclude: [/node_modules/],
-    use: [{
-        // 使用ngInject的注释时，自动加载依赖
-        loader: 'ng-annotate-loader'
-    },{
-        // es6语法支持
-        loader: 'babel-loader'
-    }]
-}
-```
-
-**gulp的两个任务配置**
-
-gulp的两个任务组成了开发的两个阶段。在两个阶段使用webpack的两种配置。serve任务还配置了热更新、代理等功能。
-
-1. serve。可查看./build/serve.js。
-2. build。可查看./build/build.js.
-
-**webpack开发和生产环境的配置**
-
-将公共部分配置提取出来形成一个基础配置。基于这个基础配置在不同使用场景再做详细的更改。具体可查看./build/webpack.config.js, ./build/webpack.dev.config.js, ./build/webpack.build.config.js. 更多资料可以看[这里][webpack-usage-1], 还有[dev-tool][dev-tool]。
-
-1. 使用sass。可以配置使用sass-loader对scss文件进行预编译成为css，具体配置方法如下, 先使用sass-loader, 然后再使用fixer-loader，最后使用css-loader。
-
-```javascript
-{
-    test: /\.scss$/,
-    use: ExtractTextPlugin.extract({
-      fallback: "style-loader",
-      use: [{
-            loader: 'css-loader',
-            options: {
-                modules: true,
-                localIdentName: '[local]--[hash:base64:5]',
-                sourceMap: true
-            }
-        }, {
-            // 兼容不同浏览器的hack
-            loader: 'autoprefixer-loader',
-            options: {
-                browsers: config.CSS_PREFIX_LIST
-            }
-        }, { 
-            loader: 'sass-loader',
-            options: {
-                includePaths: [ config.PATH_SRC + '/assets/styles' ],
-                sourceMap: true
-            }
-        }],
-        publicPath: '../'
-    })
-}
-```
-
-2. all in one. 本项目配置使用webpack入口将js分为了'framework', 'paspui', 'app'等三个文件，使用ExtractTextPlugin工具将css文件分离了出来。如果想所有的文件全部打包成为一个js文件，可以将entry设置成为1个，并且css的配置不使用ExtractTextPlugin，使用style-loader，一个示例如下:
-
-```javascript
-// 与dev相比，禁用了source map, 所有图片均使用file-loader
-webpackDefaultConfig.module.rules = webpackDefaultConfig.module.rules.concat([
-    {
-        test: /\.scss$/,
-            use: [{
-                loader: 'style-loader'
-            }, {
-                loader: 'css-loader',
-                options: {
-                    modules: true,
-                    localIdentName: '[local]--[hash:base64:5]'
-                }
-            }, {
-                loader: 'autoprefixer-loader',
-                options: {
-                    browsers: config.CSS_PREFIX_LIST
-                }
-            }, { 
-                loader: 'sass-loader',
-                options: {
-                    includePaths: [ config.PATH_SRC + '/assets/styles' ]
-                }
-            }],
-    }, {
-        test: /\.css$/,
-            use: [{
-                loader: 'style-loader'
-            }, {
-                loader: 'css-loader'
-            }, {
-                loader: 'autoprefixer-loader',
-                options: {
-                    browsers: config.CSS_PREFIX_LIST
-                }
-            }],
-    }, {
-        test: /\.(jpe?g|png|gif)$/i,
-        use: 'file-loader?name=images/[name]_[hash:base64:5].[ext]'
-    }
-]);
-
-webpackDefaultConfig.plugins = webpackDefaultConfig.plugins.concat([
-
-    /**
-     * 压缩js
-     */
-    new webpack.optimize.UglifyJsPlugin({
-        mangle: {
-            except: ['$super', '$', 'exports', 'require', 'angular']
-        }
-    }),
-
-    new webpack.DefinePlugin({ 'env':'"prod"' }),
-]);
-```
-
-3. 配置webpack全局声明替换变量。
+除此之外，有一个配置比较有用，即配置webpack **全局声明替换变量**。
 
 因为开发阶段内的本地服务器代理的情况存在，我们在请求http接口时可能会带上某个prefix来使用代理，例如本项目中的如下配置:
 
@@ -289,27 +216,11 @@ new webpack.DefinePlugin({ 'env':'"dev"' }),
 url = env === 'dev' ? "/local-proxy" + '/login' : '/login';
 ```
 
-于是在开发时，因为替换了env为'dev'，所以url取值是'/local-proxy/login', 生产环境中则env是'prod'，所以url取值成为'/login'。
+于是在开发时，因为替换了env为'dev'(猜测是loader的时候替换)，所以url取值是'/local-proxy/login', 生产环境中则env是'prod'，所以url取值成为'/login'。
 
-**browser-sync配置**
+* 一劳永逸的引入依赖
 
-本项目使用browser-sync来开启本地服务器，可以在gulp的serve任务中看到针对改工具的配置。它引导浏览器自动更新，同步用户操作等。具体的配置项可以看[官网地址][browser-sync-options]。有一个配置在这里解释一下, 里面的server选项：
-
-```javascript
-server: {
-    baseDir: config.PATH_SRC,
-    routes: {
-        // 本地打包测试
-        '/local-build': 'target'
-    }
-}
-```
-
-这个配置主要是用来辅助从本地访问target文件夹。如果只指定baseDir，那么只能访问baseDir下的文件，不能访问baseDir兄弟目录下的文件。所以配置一个route选项，访问target目录下的index.html时可以使用http://localhost:8180/local-build/index.html来访问。
-
-**引入开发文件**
-
-如何在统一入口文件中引入不同的子模块是一个问题。开发一个模块就更改一次入口文件显然比较麻烦。我们可以通过webpack的配置来帮我们解决问题。主要使用webpack的require.context。如下：
+如何在统一入口文件中引入不同的子模块是一个问题。开发一个模块就更改一次入口文件显然比较麻烦。我们可以通过webpack的require.context来帮我们解决问题。如下：
 
 ```javascript
 /**
@@ -333,7 +244,9 @@ account.keys().forEach(account);
 const app = angular.module('app', ['pasp.ui', ...dependencies]);
 ```
 
-使用以上配置，我们可以引入不同的子模块，规则是需要再scripts下，并且满足一个正则表达式。具体使用说明可以看[这里][webpack-require-context]，或者[中文版][webpack-require-context-chn]。
+使用以上配置，我们可以引入不同的子模块，规则是需要在scripts下，文件名满足一个正则表达式。具体使用说明可以看[这里][webpack-require-context]，或者[中文版][webpack-require-context-chn]。
+
+一切准备就绪，只等开发。
 
 ### 开发
 
@@ -341,7 +254,7 @@ const app = angular.module('app', ['pasp.ui', ...dependencies]);
 
 **子模块路由**
 
-不再是集中管理路由。由各个子模块配置路由, 在子模块的子页面(home.index.js)中。一个例子如下：
+不再是集中管理路由。由各个子模块配置路由, 在子模块的子页面(home.index.js)中，这就是高内聚，低耦合。一个例子如下：
 
 ```javascript
 import templateUrl from './template/home.html';
@@ -474,8 +387,11 @@ export default function() {
 import adjustResultStateFilter from './filters/adjust.result.filter';
 angular.module('ctg-iot.account')
     .filter('adjustResultStateFilter', adjustResultStateFilter);
+```
 
-// html
+在视图中的使用方法如下：
+
+```html
 <td>{{result.adjustResult | adjustResultStateFilter}}<\/td>
 ```
 
@@ -552,7 +468,34 @@ angular.module('test', [])
     .name;
 ```
 
+**视图模板引用**
 
+angular特性使得模板可以简单复用，当然如果要复用逻辑与模板，使用自定义指令directive会更好。使用方法如下：
+
+```javascript
+// controller.js
+
+import commonTemplateUrl from '../common/template.html';
+
+class ctrl {
+    constructor() {
+        this.template = commonTemplateUrl;
+    }
+}
+...
+```
+
+使用时就可以把template当作一个双向绑定的变量(事实上就是绑定到了模板的相对位置).利用angular的ng-include，如下:
+
+```html
+<ng-include src="vm.template"></ng-include>
+```
+
+### 生成配置
+
+开发自测完成之后，我们需要webpack编译出来的文件作为生产版本文件。因为自测时使用的配置webpack只是生存文件在内存中(神奇不)，所以需要专门定制新的配置将编译完成的(可以在浏览器中运行的代码)代码导出为文件。所以配置文件与开发时有所区别，具体可以关注文件./build/build.js。
+
+运行脚本命令gulp build生成的文件存放在target文件夹，把这些文件放置在CDN或者http服务器中开放访问即完成了整个前端的工作。
 
 
 [w3school]: http://www.w3school.com.cn/
