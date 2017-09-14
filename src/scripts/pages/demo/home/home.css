@@ -1,0 +1,19 @@
+.router-tabs-demo .navigation-verticle {
+    position: absolute;
+    width: 250px;
+    border-radius: 4px;
+    overflow: hidden
+}
+
+.router-tabs-demo .navigation-verticle li a {
+    padding: 10px 15px
+}
+
+.router-tabs-demo .navigation-verticle li.actived a,.router-tabs-demo .navigation-verticle li.actived a:hover,.router-tabs-demo .navigation-verticle li a:hover {
+    background: #55acef;
+    color: #fff
+}
+
+.router-tabs-demo .router-tabs-panel {
+    margin-left: 270px
+}

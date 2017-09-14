@@ -1,14 +1,19 @@
-<ui-tabset>
-    <ui-tab>
-        <ui-tab-heading>About</ui-tab-heading>
-        <p>Hello World!</p>
-    </ui-tab>
-    <ui-tab>
-        <ui-tab-heading>Contact</ui-tab-heading>
-        <p>Keep in touch!</p>
-    </ui-tab>
-    <ui-tab>
-        <ui-tab-heading>Help</ui-tab-heading>
-        <p>How can I help you?</p>
-    </ui-tab>
-</ui-tabset>
+<section class="router-tabs-demo">
+
+<!--导航-->
+<div class="navigation-verticle">
+    <ul class="nav">
+        <li ng-repeat="router in vm.routers" ng-class="{'actived' : router.route == currentRouter}"><a ui-sref="{{router.route}}" ng-click="vm.addRouteTab($event)">{{router.title}}</a></li>
+    </ul>
+</div>
+<!--选项卡-->
+<ui-panel class="no-padding router-tabs-panel">
+    <ui-tabset class="route-tabs">
+        <ui-tab ng-repeat="tab in vm.defaultRouteTabs" ng-dblclick="vm.removeRouteTab(tab)" select="vm.routeGo(tab)" heading="" active="tab.active">
+            <ui-tab-heading> {{tab.title}} <button class="btn btn-link btn-xs" ui-tooltip-append-to-body="true" ui-tooltip="关闭" ng-click="vm.removeRouteTab(tab)"><i class="fa fa-times"></i></button></ui-tab-heading>
+        </ui-tab>
+    </ui-tabset>
+    <ui-view></ui-view>
+</ui-panel>
+
+</section>

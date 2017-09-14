@@ -5,11 +5,11 @@ angular.module('demo')
     .config(($stateProvider, $urlRouterProvider) => {
         "ngInject";
         
-        $urlRouterProvider.otherwise('/');
-        $urlRouterProvider.when('', '/');
+        // $urlRouterProvider.otherwise('/index');
+        $urlRouterProvider.when('', '/index');
 
-        $stateProvider.state('main/home', {
-            url: "/",
+        $stateProvider.state('home', {
+            url: "/index",
             templateUrl: templateUrl,
             controller: controller,
             controllerAs: 'vm',
