@@ -1,19 +1,20 @@
 import style from './home.css';
 
 class Controller{
-    constructor(demoRequest, $scope, $state) {
+    constructor(demoRequest, $scope, $state, $timeout) {
         "ngInject";
 
         this._demoRequest = demoRequest;
         this._$state = $state;
         this._$scope = $scope;
+        this._$timeout = $timeout;
 
 
         // 监听路由地址变化
         this._$scope.$watch(() => {
             return this._$state.current.name;
         }, () => {
-            this._$scope.currentRouter = this._$state.current.name;
+            this.currentRouter = this._$state.current.name;
         });
         
 
@@ -32,7 +33,9 @@ class Controller{
 
     // 路由跳转
     routeGo(tab) {
-        this._$state.go(tab.route);
+        // this._$timeout(() => {
+            this._$state.go(tab.route);
+        // })
     };
 
     // 添加选项卡

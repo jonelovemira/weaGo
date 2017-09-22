@@ -6,7 +6,7 @@ angular.module('demo')
         "ngInject";
         
         // $urlRouterProvider.otherwise('/index');
-        $urlRouterProvider.when('', '/index');
+        // $urlRouterProvider.when('', '/index');
 
         $stateProvider.state('home', {
             url: "/index",
@@ -15,4 +15,11 @@ angular.module('demo')
             controllerAs: 'vm',
             reloadOnSearch: false
         });
+    }).run(($rootScope) => {
+        "ngInject";
+
+        $rootScope.$on("$stateChangeStart", (event, toState, toParams, fromState, fromParams) => {
+            
+            console.log(fromState.name,toState.name );
+        })
     });

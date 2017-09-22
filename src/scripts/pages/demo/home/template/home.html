@@ -3,7 +3,7 @@
 <!--导航-->
 <div class="navigation-verticle">
     <ul class="nav">
-        <li ng-repeat="router in vm.routers" ng-class="{'actived' : router.route == currentRouter}"><a ui-sref="{{router.route}}" ng-click="vm.addRouteTab($event)">{{router.title}}</a></li>
+        <li ng-repeat="router in vm.routers" ng-class="{'actived' : router.route == vm.currentRouter}"><a ui-sref="{{router.route}}" ng-click="vm.addRouteTab($event)">{{router.title}}</a></li>
     </ul>
 </div>
 <!--选项卡-->
